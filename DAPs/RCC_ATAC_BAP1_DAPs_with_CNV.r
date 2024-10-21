@@ -199,12 +199,15 @@ addmeta <- celltypes %>%
 rownames(addmeta) <- addmeta$merged_barcode
 object <- AddMetaData(object,addmeta)
 
+head(object@meta.data)
+
 #subset only cancer cells
 object <- subset(object, celltype_final_short	 == 'ccRCC cc')
+print(dim(object))
 #subset out HT293 and HT282
 object@meta.data$HTAN.case <- object@meta.data$Case %in% c('HT293H1', 'HT282H1')
 object <- subset(object, HTAN.case, invert = TRUE)
-
+print(dim(object))
 
 cnv.table <- readRDS('/diskmnt/Projects/ccRCC_scratch/RCC_snRNA_2022/Results/Alla_help/match_peaks_with_CNV_by_genes/Case2Peak.CNV.20241018.v1.RDS')
 colnames(cnv.table)=gsub('-','_',colnames(cnv.table))
