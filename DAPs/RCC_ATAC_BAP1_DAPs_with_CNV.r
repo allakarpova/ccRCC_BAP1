@@ -195,7 +195,7 @@ celltypes %>% head
 
 ## add meta
 addmeta <- celltypes %>% 
-  left_join(clinical[c('Aliquot.snRNA','Case_comparison')], by = c('orig.ident' = 'Aliquot.snRNA'))
+  left_join(clinical[c('Aliquot.snRNA','Case_comparison', 'Case', 'Genotype_group')], by = c('orig.ident' = 'Aliquot.snRNA'))
 rownames(addmeta) <- addmeta$merged_barcode
 object <- AddMetaData(object,addmeta)
 
