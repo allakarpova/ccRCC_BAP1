@@ -202,7 +202,7 @@ object <- AddMetaData(object,addmeta)
 #subset only cancer cells
 object <- subset(object, celltype_final_short	 == 'ccRCC cc')
 #subset out HT293 and HT282
-object$meta.data$HTAN.case <- object$meta.data$Case %in% c('HT293H1', 'HT282H1')
+object@meta.data$HTAN.case <- object@meta.data$Case %in% c('HT293H1', 'HT282H1')
 object <- subset(object, HTAN.case, invert = TRUE)
 
 
