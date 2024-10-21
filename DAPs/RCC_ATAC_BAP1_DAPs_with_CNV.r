@@ -28,7 +28,8 @@ my0packages <- c(
    "circlize",
    "ggrepel",
        "doParallel",
-   "Matrix"
+   "Matrix",
+   "optparse"
 )
 
 for (pkg_name_tmp in my0packages) {
