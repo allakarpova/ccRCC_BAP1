@@ -158,16 +158,12 @@ min.pct.cutoff <- opt$min.pct
 
 dir.create(out_path, showWarnings = F)
 setwd(out_path)
+dir.create('out')
 
-select <- dplyr::select
-filter <- dplyr::filter
 
 ### -----
 
 
-# set working directory
-setwd(output_dir)
-dir.create('out')
 
 # load clinical data
 clinical <- dfread(clinic)
