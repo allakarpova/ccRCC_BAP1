@@ -233,7 +233,7 @@ assay='X500peaksMACS2'
 ## input the CNV values per peak per cell
 ### column is named after the peak by rownames(object)
 ### row is named after the cells by colnames(object)
-cnv_per_feature_df=barcode
+#cnv_per_feature_df=barcode
 
 # set pre-filtering parameters --------------------------------------------
 ## set min.pct
