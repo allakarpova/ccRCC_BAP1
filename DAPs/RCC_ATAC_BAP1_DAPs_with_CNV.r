@@ -294,8 +294,8 @@ write.table(filtered.peaks,glue::glue('out/{mut}_comparison_Filtered_peaks_byMin
             row.names=F,quote=F)
 
 ## set "features" -- we do it later
-features=colnames(barcode)
-
+#features=colnames(barcode)
+features=filtered.peaks$peak
 
 # set inputs for the below process --------------------------------------------------------------
 cells.1 <- WhichCells(object = object, idents = ident.use.1)
