@@ -166,7 +166,7 @@ filter <- dplyr::filter
 
 # set working directory
 setwd(output_dir)
-
+dir.create('out')
 
 # load clinical data
 clinical <- dfread(clinic)
@@ -363,7 +363,7 @@ if (slot != "scale.data") {
 
 filtered.peaks=fc.results[rownames(fc.results) %in% features,]
 filtered.peaks$peak=rownames(filtered.peaks)
-write.table(filtered.peaks,paste0('out/BAP1_comparison_Filtered_peaks_byMinPct',min.pct.cutoff,'_MinPctDiff.tsv'),sep='\t',
+write.table(filtered.peaks,glue::glue('out/{mut}_comparison_Filtered_peaks_byMinPct{min.pct.cutoff}_MinPctDiff.tsv'),sep='\t',
             row.names=F,quote=F)
 
 ## set "features" -- we do it later
@@ -448,7 +448,7 @@ to.return$chr_peak=gsub('(.*)-.*-.*','\\1',to.return$peak)
 version_tmp <- 1
 run_id <- paste0(format(Sys.Date(), "%Y%m%d") , ".v", version_tmp)
 
-write.table(to.return,paste0("out/DA_peaks_BAP1mutants_vs_nonMutants_correctedbyCNV.",run_id,".tsv"),
+write.table(to.return,glue:glue("out/DA_peaks_{mut}mutants_vs_nonMutants_correctedbyCNV.{run_id}.tsv"),
             sep='\t',quote=FALSE,row.names=F)
 
 
