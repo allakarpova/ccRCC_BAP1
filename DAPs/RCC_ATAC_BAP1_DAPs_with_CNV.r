@@ -29,7 +29,8 @@ my0packages <- c(
    "ggrepel",
        "doParallel",
    "Matrix",
-   "optparse"
+   "optparse",
+   "future"
 )
 
 for (pkg_name_tmp in my0packages) {
