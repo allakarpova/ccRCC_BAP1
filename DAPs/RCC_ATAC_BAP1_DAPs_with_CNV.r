@@ -30,7 +30,8 @@ my0packages <- c(
        "doParallel",
    "Matrix",
    "optparse",
-   "future"
+   "future",
+   "pbapply"
 )
 
 for (pkg_name_tmp in my0packages) {
