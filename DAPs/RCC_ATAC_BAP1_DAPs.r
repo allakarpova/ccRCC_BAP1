@@ -19,33 +19,33 @@ options(scipen = 3)
 ## Load packages
 
 my0packages <- c(
-   "tidyverse",
-   "data.table",
-   "Seurat",
-    'Signac',
-   "RColorBrewer",
-   "patchwork",
-   "circlize",
-   "ggrepel",
-       "doParallel",
-   "Matrix",
-   "optparse",
-   "future",
-   "pbapply",
-   "lmtest"
+  "tidyverse",
+  "data.table",
+  "Seurat",
+  'Signac',
+  "RColorBrewer",
+  "patchwork",
+  "circlize",
+  "ggrepel",
+  "doParallel",
+  "Matrix",
+  "optparse",
+  "future",
+  "pbapply",
+  "lmtest"
 )
 
 for (pkg_name_tmp in my0packages) {
-   if (!(pkg_name_tmp %in% installed.packages()[,1])) {
-      message(pkg_name_tmp," package not installed")
-   }
-   library(package = pkg_name_tmp, character.only = T, warn.conflicts = FALSE)
+  if (!(pkg_name_tmp %in% installed.packages()[,1])) {
+    message(pkg_name_tmp," package not installed")
+  }
+  library(package = pkg_name_tmp, character.only = T, warn.conflicts = FALSE)
 }
 
 ### Functions live here ----
 
 dfread <- function(l.path) {
-   fread(l.path, data.table = FALSE)
+  fread(l.path, data.table = FALSE)
 }
 
 rename <- dplyr::rename
@@ -164,7 +164,7 @@ clinic <- opt$clinical
 mut <- opt$mutation
 min.pct.cutoff <- opt$min.pct
 min.diff.pct.cutoff <- opt$min.diff.pct
-  
+
 dir.create(out_path, showWarnings = F)
 setwd(out_path)
 dir.create('out')
@@ -219,14 +219,14 @@ object@meta.data$HTAN.case <- object@meta.data$Case %in% c('HT293N1', 'HT282N1')
 object <- subset(object, HTAN.case, invert = TRUE)
 print(dim(object))
 
-cnv.table <- readRDS('/diskmnt/Projects/ccRCC_scratch/RCC_snRNA_2022/Results/Alla_help/match_peaks_with_CNV_by_genes/Case2Peak.CNV.20241018.v1.RDS')
+#cnv.table <- readRDS('/diskmnt/Projects/ccRCC_scratch/RCC_snRNA_2022/Results/Alla_help/match_peaks_with_CNV_by_genes/Case2Peak.CNV.20241018.v1.RDS')
 #remove peaks with NA CNVs
-peaks.withNA <- apply(cnv.table,2, FUN = function(x) all(is.na(x)))
-cnv.table <- cnv.table[,colnames(cnv.table)[!peaks.withNA]]
+#peaks.withNA <- apply(cnv.table,2, FUN = function(x) all(is.na(x)))
+#cnv.table <- cnv.table[,colnames(cnv.table)[!peaks.withNA]]
 
 meta.cc <- object@meta.data %>% 
-    filter(celltype_final_short	 == 'ccRCC cc') %>%
-    select(Case, Sample)
+  filter(celltype_final_short	 == 'ccRCC cc') %>%
+  select(Case, Sample)
 
 
 ###Now check how FindMarkers modules will work:
@@ -307,8 +307,8 @@ write.table(filtered.peaks,glue::glue('out/{mut}_comparison_Filtered_peaks_byMin
 ## set "features" -- we do it later
 #features=colnames(barcode)
 #keep only peaks that have CNV information for them
-filtered.peaks <- filtered.peaks %>%
-  filter(peak %in% colnames(cnv.table))
+#filtered.peaks <- filtered.peaks %>%
+#  filter(peak %in% colnames(cnv.table))
 features=filtered.peaks$peak
 
 #colnames(cnv.table)=gsub('-','_',colnames(cnv.table))
@@ -341,32 +341,24 @@ latent.vars <- latent.vars[rownames(group.info), , drop = FALSE]
 
 
 
-  
+
 # run test ----------------------------------------------------------------
-my.lapply <- ifelse(
+my.sapply <- ifelse(
   nbrOfWorkers() == 1,
   #  test = verbose && nbrOfWorkers() == 1,
-  yes = pblapply,
-  no = future_lapply
+  yes = pbsapply,
+  no = future_sapply
 )
 fc_p_val <- my.lapply(
   X = rownames(x = data.use),
   FUN = function(x) {
-   
-    cnv_per_feature_df <- meta.cc %>% 
-      rownames_to_column('R') %>% 
-      left_join(cnv.table[,c('Case', x)], by = 'Case') %>%
-      column_to_rownames('R') %>%
-      select(all_of(x))
-    cnv_per_feature_df <- cnv_per_feature_df[rownames(group.info),]
-    latent.vars.full <- cbind(latent.vars, CNV = cnv_per_feature_df)
     
-    model.data <- cbind(PEAK = data.use[x,], group.info, latent.vars.full)
+    model.data <- cbind(PEAK = data.use[x,], group.info, latent.vars)
     model.data <- cbind(model.data, PEAK.log2 = log2(exp(model.data[,'PEAK'])))
     model.data <- cbind(model.data, group.binary = ifelse(model.data[,'group']=='Group1',1,0))
     
-    fmla <- as.formula(object = "group.binary ~ PEAK.log2 + CNV + peak_RF_500MACS2")
-    fmla2 <- as.formula(object = "group.binary ~ CNV + peak_RF_500MACS2")
+    fmla <- as.formula(object = "group.binary ~ PEAK.log2 + peak_RF_500MACS2")
+    fmla2 <- as.formula(object = "group.binary ~ peak_RF_500MACS2")
     
     model1 <- glm(formula = fmla, data = model.data, family = "binomial")
     model2 <- glm(formula = fmla2, data = model.data, family = "binomial")
@@ -376,15 +368,12 @@ fc_p_val <- my.lapply(
     return(c(fc.glm, pv))
   }
 )
-
 mat <- do.call('rbind', fc_p_val)
 colnames(mat) <- c('log2FC_glm', 'p_val')
 to.return <- data.frame(mat, row.names = rownames(data.use))
 to.return$p_val=as.numeric(as.character(unlist(to.return$p_val)))
 to.return$FDR=p.adjust(to.return$p_val,method='fdr')
 to.return$p_adjust_bonf=p.adjust(to.return$p_val,method='bonferroni')
-
-
 
 ###Now merge with fc.results
 to.return$peak=row.names(to.return)
@@ -402,13 +391,13 @@ to.return <- to.return %>% left_join((annotated_peaks %>% select(new_peak, peak.
 version_tmp <- 1
 run_id <- paste0(format(Sys.Date(), "%Y%m%d") , ".v", version_tmp)
 
-write.table(to.return,glue::glue("out/DA_peaks_{mut}mutants_vs_nonMutants_correctedbyCNV.{run_id}.tsv"),
+write.table(to.return,glue::glue("out/DA_peaks_{mut}mutants_vs_nonMutants_NOTcorrectedbyCNV.{run_id}.tsv"),
             sep='\t',quote=FALSE,row.names=F)
 
 
 #
 #save.signif.deg(pval_df,log2FC_df,coverage_df, "All")
-  
+
 
 
 
