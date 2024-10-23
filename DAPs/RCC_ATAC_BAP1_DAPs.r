@@ -343,11 +343,11 @@ latent.vars <- latent.vars[rownames(group.info), , drop = FALSE]
 
 
 # run test ----------------------------------------------------------------
-my.sapply <- ifelse(
+my.lapply <- ifelse(
   nbrOfWorkers() == 1,
   #  test = verbose && nbrOfWorkers() == 1,
-  yes = pbsapply,
-  no = future_sapply
+  yes = pblapply,
+  no = future_lapply
 )
 fc_p_val <- my.lapply(
   X = rownames(x = data.use),
